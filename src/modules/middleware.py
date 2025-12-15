@@ -1,7 +1,8 @@
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
-
+import json
+import re
 
 class RAGContextHolder:
     def __init__(self):
@@ -17,17 +18,29 @@ class RAGContextHolder:
         return self.last_retrieved_docs
 
 
-def create_middleware(retriever,model):
-    context_holder=RAGContextHolder()
+def create_middleware(retriever_k4, retriever_k10,model):
     @dynamic_prompt
     def prompt_with_context(request: ModelRequest) -> str:
         """Inject context into state messages."""
         last_query = request.state["messages"][-1].content
         print(f"\n--- [Middleware] Original Query: '{last_query}' ---")
 
+        context_holder = RAGContextHolder()
+
         # 2. Request to rewrite the query
-        rewrite_system_msg = """You are an expert query assistant. Your task is to rewrite the user's question into an optimized query for a vector database search. Your rewritten query will be used for similarity search.
-        Only output the rewritten query."""
+        rewrite_system_msg = """
+            You are an expert assistant for literature retrieval.
+
+            Given a user's question, do the following:
+            1. Rewrite the question into an optimized query for vector database similarity search over RNA-seq research papers.
+            2. Decide whether the rewritten query is an aggregation-style query that requires retrieving evidence from multiple papers.
+
+            Return your output strictly in the following JSON format:
+            {{
+            "rewritten_query": "...",
+            "is_aggregation": true or false
+            }}
+            """
 
         # Make a template
         rewrite_template = ChatPromptTemplate(
@@ -44,13 +57,32 @@ def create_middleware(retriever,model):
             }
         )
 
+        # rewrite_response = model.invoke(rewrite_prompt_value.messages)
         rewrite_response = model.invoke(rewrite_prompt_value.messages)
 
-        rewritten_query = rewrite_response.content
-        print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
+        # import json
+        raw = rewrite_response.content.strip()
 
+        # JSON 블록만 추출
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+
+        if not match:
+            raise ValueError(f"Rewrite LLM did not return JSON:\n{raw}")
+
+        rewrite_result = json.loads(match.group())
+
+        rewritten_query = rewrite_result["rewritten_query"]
+        is_aggregation = rewrite_result["is_aggregation"]
+
+        rewritten_query = rewrite_response.content
+        print(f"--- [Middleware] Rewritten Query: '{rewritten_query}', Aggregation: '{is_aggregation}' ---")
+
+        if is_aggregation:
+            retriever = retriever_k10
+        else:
+            retriever = retriever_k4
         retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
-        
+        context_holder=RAGContextHolder()
         context_holder.set_docs(retrieved_docs)
         print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")
 
@@ -65,5 +97,5 @@ def create_middleware(retriever,model):
         "\n--- END CONTEXT ---"
         )
 
-        return system_message
-    return prompt_with_context,context_holder
+        return system_message 
+    return prompt_with_context

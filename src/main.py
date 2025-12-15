@@ -56,11 +56,16 @@ def main():
     else:
         print(f"Vector store is loaded and ready from {file_path}")
 
-    retriever=vector_store.as_retriever()
+    retriever_k4=vector_store.as_retriever({
+        "search_kwargs": {"k":4}
+    })
+    retriever_k10=vector_store.as_retriever({
+        "search_kwargs": {"k":10}
+    })
     
     model=ChatGroq(model="llama-3.3-70b-versatile",
     temperature=0)
-    RAG_middleware,context_holder=create_middleware(retriever,model)
+    RAG_middleware,context_holder=create_middleware(retriever_k4, retriever_k10, model)
     agent=create_agent(model, tools=[], middleware=[RAG_middleware])
 
     #여기부턴 시연용 코드
