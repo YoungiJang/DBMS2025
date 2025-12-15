@@ -1,11 +1,17 @@
 import os
+import sys
+from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain.agents import create_agent
 from modules.data_loading import data_loader
 from modules.data_splitting import token_text_splitter, recursive_character_text_splitter
 from modules.embedding import get_embedding_model
 from modules.vector_store import create_vectorstore,load_vectorstore
-from modules.vector_store_test import test_search
+from modules.middleware import create_middleware
 
 def main():
+    load_dotenv()
+
     pdf_path = "./data/paper" # 데이터 폴더 경로
     base_directory="vector_stores" #vector store 폴더 경로
     if not os.path.exists(base_directory):
@@ -42,11 +48,17 @@ def main():
         vector_store=create_vectorstore(chunk_stream,embedding_model,file_path)
     else:
         print(f"Vector store is loaded and ready from {file_path}")
+
+    retriever=vector_store.as_retriever()
+
+    model=init_chat_model("google_genai:gemini-2.5-flash")
+    RAG_middleware=create_middleware(retriever,model)
+    agent=create_agent(model, tools=[], middleware=[RAG_middleware])
+
+    result=agent.invoke({"messages":[{"role":"user","content":"Explain about transcriptome"}]})
+    print(result["messages"][-1].pretty_print())
     
-    #Vector store 테스트를 위한 코드
-    k=1
-    query="Tell me about transcriptome"
-    test_search(vector_store,query,k)
+    
 
 
 if __name__ == "__main__":
