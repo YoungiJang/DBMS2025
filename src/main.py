@@ -26,10 +26,10 @@ def main():
 
     #하이퍼파라미터 지정
     chunk_size=1000
-    chunk_overlap=200
-    separators=["\n\n", "\n", " ", ""]
+    chunk_overlap=100
+    separators=separators = [ "\n\n",    ". ",     "? ",      "! ",      "\n",    " ",     ""    ]
     #Separator를 어떻게 정했는지에 대한 설명 텍스트
-    sep_details="default"
+    sep_details="paper_optimize"
     splitter="recursive"
 
     embedding_model=get_embedding_model()
@@ -71,7 +71,7 @@ def main():
 
     #여기부턴 시연용 코드
     #query에 원하는 질문 입력하면 콘솔에 출력 가능
-    '''
+    
     query=["Could you tell me how to understand RNA sequencing?","Explain about Blood Transcriptome."]
     for i,question in enumerate(query,1):
         for step in agent.stream(
@@ -79,11 +79,11 @@ def main():
             stream_mode="values",
         ):
             step["messages"][-1].pretty_print()
-    '''
+    
 
     #여기부턴 Evaluation 코드
     #시연 시 이 아래는 주석 처리
-    
+    '''
     evaluation_func = evaluation_wrapper(agent,context_holder)
     def target(inputs:dict)->dict:
         return evaluation_func(inputs["query"])
@@ -127,7 +127,7 @@ def main():
     df.to_csv(csv_filename, index=False, encoding="utf-8-sig")
     
     print(f"Results saved to: {csv_filename}")
-    
+    '''
 
 if __name__ == "__main__":
     main()
