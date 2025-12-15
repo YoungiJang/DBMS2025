@@ -56,7 +56,7 @@ def extract_and_parse_json(text: str):
 # Evaluator
 def relevance(inputs: dict, outputs: dict) -> int:
     # 1. 모델 설정
-    model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    model = ChatGroq(model="llama-3.1-8b-instant", temperature=0)
     
     # 2. 프롬프트 작성 
     relevance_instructions = """You are an impartial evaluator. Your task is to assess the relevance of a provided ANSWER to a given QUESTION using a 1-5 score.
@@ -114,7 +114,7 @@ def relevance(inputs: dict, outputs: dict) -> int:
         return 1
 
 def groundedness(inputs: dict, outputs: dict) -> int:
-    model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    model = ChatGroq(model="llama-3.1-8b-instant", temperature=0)
 
     grounded_instructions = """You are an impartial evaluator. Your task is to assess whether an ANSWER is "grounded in" a set of provided CONTEXTS using a 1-5 score.
 
@@ -163,7 +163,7 @@ def groundedness(inputs: dict, outputs: dict) -> int:
 
 
 def retrieval_relevance(inputs: dict, outputs: dict) -> int:
-    model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    model = ChatGroq(model="llama-3.1-8b-instant", temperature=0)
 
     retrieval_relevance_instructions = """You are an impartial evaluator. Your task is to assess the relevance of a set of retrieved CONTEXTS to a given QUESTION using a 1-5 score.
 

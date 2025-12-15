@@ -26,7 +26,29 @@ def create_middleware(retriever,model):
         print(f"\n--- [Middleware] Original Query: '{last_query}' ---")
 
         # 2. Request to rewrite the query
-        rewrite_system_msg = """You are an expert query assistant. Your task is to rewrite the user's question into an optimized query for a vector database search. Your rewritten query will be used for similarity search.
+        rewrite_system_msg = """You are an expert Bioinformatics Research Assistant specializing in RNA-seq analysis.
+The user will describe a specific "Experimental Design" or "Analysis Challenge" (e.g., time-course, batch effects, small sample size, non-model organism).
+
+Your task is to rewrite the user's query into a precise **search query** optimized for retrieving the "Materials and Methods" sections of academic papers.
+
+**Instructions:**
+1. **Analyze the Scenario:** Identify the key experimental factor (e.g., "Time-course" -> implies "Longitudinal analysis", "LRT").
+2. **Expand Technical Terms:** Add specific bioinformatics keywords relevant to that scenario.
+    - *For Batch Effects:* Add "Batch correction", "ComBat", "RUVSeq", "Variation removal".
+    - *For Time-course:* Add "Time-series", "Temporal dynamics", "Likelihood Ratio Test", "Clustering".
+    - *For Small Samples:* Add "Statistical power", "Dispersion estimation", "Robustness".
+    - *For Non-human:* Add "De novo assembly", "Ortholog mapping", "Scaffolding".
+    - *For General:* Always include core terms like "RNA-seq preprocessing", "Normalization", "Differential Expression".
+3. **Format:** Output ONLY the rewritten query string. Do not explain.
+
+**Examples:**
+User: "I have data from multiple time points. How to analyze?"
+Rewritten: RNA-seq time-course analysis methods preprocessing normalization longitudinal design Likelihood Ratio Test time-series clustering pipelines
+
+User: "Data was generated across multiple sequencing batches."
+Rewritten: RNA-seq batch effect correction methods ComBat RUVSeq remove unwanted variation normalization multi-batch analysis pipeline
+
+Your rewritten query will be used for similarity search.
         Only output the rewritten query."""
 
         # Make a template
@@ -48,6 +70,33 @@ def create_middleware(retriever,model):
 
         rewritten_query = rewrite_response.content
         print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
+
+        retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
+        
+        context_holder.set_docs(retrieved_docs)
+        print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")
+
+        docs_content = "\n\n".join(doc.page_content for doc in retrieved_docs)
+
+        print(f"--- [Middleware] Retrieved {len(retrieved_docs)} docs ---")
+
+        system_message = (
+        "You are a helpful assistant. Use the following context in your response:"
+        "\n\n--- CONTEXT ---"
+        f"\n{docs_content}"
+        "\n--- END CONTEXT ---"
+        )
+
+        return system_message
+    return prompt_with_context,context_holder
+
+def create_baseline(retriever,model):
+    context_holder=RAGContextHolder()
+    @dynamic_prompt
+    def prompt_with_context(request: ModelRequest) -> str:
+        """Inject context into state messages."""
+        last_query = request.state["messages"][-1].content
+        print(f"\n--- [Middleware] Original Query: '{last_query}' ---")
 
         retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
         
