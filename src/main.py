@@ -84,7 +84,7 @@ def main():
 
     query_dataset=[
         {
-            "inputs": {"query": "Could you tell me how to understand RNA sequencing?"},
+            "inputs": {"query": "Which RNA-seq read alignment tools are commonly used in bulk RNA-seq clinical studies?"},
         },
         {
             "inputs": {"query": "Explain about Blood Transcriptome."},
