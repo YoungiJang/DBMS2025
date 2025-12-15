@@ -18,6 +18,7 @@ class RAGContextHolder:
 
 
 def create_middleware(retriever,model):
+    context_holder=RAGContextHolder()
     @dynamic_prompt
     def prompt_with_context(request: ModelRequest) -> str:
         """Inject context into state messages."""
@@ -49,7 +50,7 @@ def create_middleware(retriever,model):
         print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
 
         retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
-        context_holder=RAGContextHolder()
+        
         context_holder.set_docs(retrieved_docs)
         print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")
 
@@ -64,5 +65,5 @@ def create_middleware(retriever,model):
         "\n--- END CONTEXT ---"
         )
 
-        return system_message 
-    return prompt_with_context
+        return system_message
+    return prompt_with_context,context_holder
