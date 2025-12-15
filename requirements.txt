@@ -1,0 +1,16 @@
+langchain
+langchain-community
+langchain-text-splitters
+langsmith
+pypdf
+beautifulsoup4
+selenium
+requests
+lxml
+jq
+tiktoken
+sentence-transformers
+langchain-huggingface
+faiss-cpu
+chromadb
+langchain[google-genai]
