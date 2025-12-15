@@ -63,6 +63,21 @@ def main():
     RAG_middleware,context_holder=create_middleware(retriever,model)
     agent=create_agent(model, tools=[], middleware=[RAG_middleware])
 
+    #여기부턴 시연용 코드
+    #query에 원하는 질문 입력하면 콘솔에 출력 가능
+    '''
+    query=["Could you tell me how to understand RNA sequencing?","Explain about Blood Transcriptome."]
+    for i,question in enumerate(query,1):
+        for step in agent.stream(
+            {"messages": [{"role": "user", "content": question}]},
+            stream_mode="values",
+        ):
+            step["messages"][-1].pretty_print()
+    '''
+
+    #여기부턴 Evaluation 코드
+    #시연 시 이 아래는 주석 처리
+    
     evaluation_func = evaluation_wrapper(agent,context_holder)
     def target(inputs:dict)->dict:
         return evaluation_func(inputs["query"])
@@ -106,11 +121,7 @@ def main():
     df.to_csv(csv_filename, index=False, encoding="utf-8-sig")
     
     print(f"Results saved to: {csv_filename}")
-
-
     
-    
-
 
 if __name__ == "__main__":
     main()
