@@ -19,13 +19,12 @@ class RAGContextHolder:
 
 
 def create_middleware(retriever_k4, retriever_k10,model):
+    context_holder=RAGContextHolder()
     @dynamic_prompt
     def prompt_with_context(request: ModelRequest) -> str:
         """Inject context into state messages."""
         last_query = request.state["messages"][-1].content
         print(f"\n--- [Middleware] Original Query: '{last_query}' ---")
-
-        context_holder = RAGContextHolder()
 
         # 2. Request to rewrite the query
         rewrite_system_msg = """
@@ -73,16 +72,17 @@ def create_middleware(retriever_k4, retriever_k10,model):
 
         rewritten_query = rewrite_result["rewritten_query"]
         is_aggregation = rewrite_result["is_aggregation"]
-
-        rewritten_query = rewrite_response.content
-        print(f"--- [Middleware] Rewritten Query: '{rewritten_query}', Aggregation: '{is_aggregation}' ---")
+        print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
 
         if is_aggregation:
             retriever = retriever_k10
+            print(f"--- [Middleware] Using retriever_k10 for aggregation query ---")
         else:
             retriever = retriever_k4
+            print(f"--- [Middleware] Using retriever_k4 for non-aggregation query ---")
+
         retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
-        context_holder=RAGContextHolder()
+        
         context_holder.set_docs(retrieved_docs)
         print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")
 
@@ -97,5 +97,5 @@ def create_middleware(retriever_k4, retriever_k10,model):
         "\n--- END CONTEXT ---"
         )
 
-        return system_message 
-    return prompt_with_context
+        return system_message
+    return prompt_with_context,context_holder

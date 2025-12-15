@@ -56,12 +56,13 @@ def main():
     else:
         print(f"Vector store is loaded and ready from {file_path}")
 
-    retriever_k4=vector_store.as_retriever({
-        "search_kwargs": {"k":4}
-    })
-    retriever_k10=vector_store.as_retriever({
-        "search_kwargs": {"k":10}
-    })
+
+    retriever_k4 = vector_store.as_retriever(
+        search_kwargs={"k": 4}
+    )
+    retriever_k10 = vector_store.as_retriever(
+        search_kwargs={"k": 10}
+    )
     
     model=ChatGroq(model="llama-3.3-70b-versatile",
     temperature=0)
