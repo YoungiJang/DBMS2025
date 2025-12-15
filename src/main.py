@@ -15,6 +15,7 @@ def main():
     chunk_size=1000
     chunk_overlap=200
     separators=["\n\n", "\n", " ", ""]
+    #Separator를 어떻게 정했는지에 대한 설명 텍스트
     sep_details="default"
     splitter="recursive"
 
@@ -44,7 +45,7 @@ def main():
     
     #Vector store 테스트를 위한 코드
     k=1
-    query="Tell me about independence"
+    query="Tell me about transcriptome"
     test_search(vector_store,query,k)
 
 
