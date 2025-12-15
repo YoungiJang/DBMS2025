@@ -6,7 +6,7 @@ from modules.vector_store import create_vectorstore,load_vectorstore
 from modules.vector_store_test import test_search
 
 def main():
-    pdf_path = "./data/papers" # 데이터 폴더 경로
+    pdf_path = "./data/paper" # 데이터 폴더 경로
     base_directory="vector_stores" #vector store 폴더 경로
     if not os.path.exists(base_directory):
         os.makedirs(base_directory)
