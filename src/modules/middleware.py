@@ -71,7 +71,7 @@ Your rewritten query will be used for similarity search.
         rewritten_query = rewrite_response.content
         print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
 
-        retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
+        retrieved_docs = retriever.invoke(rewritten_query) # using the faiss vector store from our own dataset
         
         context_holder.set_docs(retrieved_docs)
         print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")

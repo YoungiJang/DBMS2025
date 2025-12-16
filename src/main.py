@@ -66,15 +66,16 @@ def main():
     #여기부턴 시연용 코드
     #query에 원하는 질문 입력하면 콘솔에 출력 가능
     #시연 하지 않을 때는 주석 처리
-    '''
-    query=["Could you tell me how to understand RNA sequencing?","Explain about Blood Transcriptome."]
+    
+    query=["I am planning to compare tumor and normal tissue samples using bulk RNA-seq. How do published studies typically design and analyze this type of experiment?",
+    "I have bulk RNA-seq data from patients and would like to account for clinical variables such as age and sex in the analysis. How do previous studies usually handle this?"]
     for i,question in enumerate(query,1):
         for step in agent.stream(
             {"messages": [{"role": "user", "content": question}]},
             stream_mode="values",
         ):
             step["messages"][-1].pretty_print()
-    '''
+    
 
     #여기부턴 BaseLine과 비교하는 코드
     #비교 안할 시 주석 처리
@@ -191,7 +192,7 @@ def main():
 
     #여기부턴 Parameter Evaluation 코드
     #사용 안할 시 이 아래는 주석 처리
-    
+    '''
     evaluation_func = evaluation_wrapper(agent,context_holder)
     def target(inputs:dict)->dict:
         return evaluation_func(inputs["query"])
@@ -275,7 +276,7 @@ def main():
     df.to_csv(csv_filename, index=False, encoding="utf-8-sig")
     
     print(f"Results saved to: {csv_filename}")
-    
+    '''
     
 
 if __name__ == "__main__":
