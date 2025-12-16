@@ -90,6 +90,7 @@ Your rewritten query will be used for similarity search.
         is_aggregation = rewrite_result["is_aggregation"]
         print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
 
+<<<<<<< HEAD
         if is_aggregation:
             retriever = retriever_k10
             print(f"--- [Middleware] Using retriever_k10 for aggregation query ---")
@@ -98,6 +99,9 @@ Your rewritten query will be used for similarity search.
             print(f"--- [Middleware] Using retriever_k4 for non-aggregation query ---")
 
         retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
+=======
+        retrieved_docs = retriever.invoke(rewritten_query) # using the faiss vector store from our own dataset
+>>>>>>> 68d421d01a0b324ddcf48d7fe5d14a3f6eb42497
         
         context_holder.set_docs(retrieved_docs)
         print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")
