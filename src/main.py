@@ -64,17 +64,15 @@ def main():
         search_kwargs={"k": 10}
     )
     
-    model=ChatGroq(model="llama-3.1-8b-instant",
-    temperature=0)
-    RAG_middleware,context_holder=create_middleware(retriever_k4, retriever_k10, model)
+    model=ChatGroq(model="llama-3.1-8b-instant", temperature=0)
+    RAG_middleware, context_holder=create_middleware(retriever_k4, retriever_k10, model)
     agent=create_agent(model, tools=[], middleware=[RAG_middleware])
 
     #여기부턴 시연용 코드
     #query에 원하는 질문 입력하면 콘솔에 출력 가능
     #시연 하지 않을 때는 주석 처리
     
-    query=["I am planning to compare tumor and normal tissue samples using bulk RNA-seq. How do published studies typically design and analyze this type of experiment?",
-    "I have bulk RNA-seq data from patients and would like to account for clinical variables such as age and sex in the analysis. How do previous studies usually handle this?"]
+    query=["I am planning to compare tumor and normal tissue samples using bulk RNA-seq. How do published studies typically design and analyze this type of experiment?",]
     for i,question in enumerate(query,1):
         for step in agent.stream(
             {"messages": [{"role": "user", "content": question}]},
@@ -86,7 +84,7 @@ def main():
     #여기부턴 BaseLine과 비교하는 코드
     #비교 안할 시 주석 처리
     '''
-    RAG_baseline,context_holder_baseline=create_baseline(retriever,model)
+    RAG_baseline,context_holder_baseline=create_baseline(retriever_k4,model)
     baseline_agent=create_agent(model,tools=[],middleware=[RAG_baseline])
     evaluation_baseline=evaluation_wrapper(baseline_agent,context_holder_baseline)
     evaluation_func = evaluation_wrapper(agent,context_holder)
@@ -102,45 +100,45 @@ def main():
         {
             "inputs": {"query": "I have bulk RNA-seq data from patients and would like to account for clinical variables such as age and sex in the analysis. How do previous studies usually handle this?"},
         },
-        {
-            "inputs": {"query": "When analyzing bulk RNA-seq data, what does a typical end-to-end analysis pipeline look like, from read preprocessing to differential expression analysis?"},
-        },
-        {
-            "inputs": {"query": "I plan to align RNA-seq reads using STAR and perform differential expression analysis with DESeq2. Are there published studies that use a similar analysis pipeline?"},
-        },
-        {
-            "inputs": {"query": "I’ve heard that different analysis choices in clinical bulk RNA-seq studies can lead to different results. How do published papers discuss or address these methodological limitations?"},
-        },
-        {
-            "inputs": {"query": "I am analyzing bulk RNA-seq data from multiple cancer cell lines under different treatment conditions. How do published studies typically design and analyze this type of experiment?"},
-        },
-        {
-            "inputs": {"query": "I have bulk RNA-seq data collected at multiple time points after treatment. How do studies usually handle preprocessing and statistical analysis for time-course RNA-seq experiments?"},
-        },
-        {
-            "inputs": {"query": "I am working with bulk RNA-seq data from a non-human model organism. How do studies typically choose reference genomes and analysis pipelines in such cases?"},
-        },
-        {
-            "inputs": {"query": "My bulk RNA-seq experiment has a relatively small number of samples per group. How do published studies address this issue in their analysis pipeline?"},
-        },
-        {
-            "inputs": {"query": "Bulk RNA-seq data were generated across multiple sequencing batches and platforms. How do studies usually design their analysis to handle this?"},
-        },
-        {
-            "inputs": {"query": "I am reanalyzing publicly available bulk RNA-seq datasets. How do studies typically design preprocessing and normalization pipelines for secondary data analysis?"},
-        },
-        {
-            "inputs": {"query": "I have bulk RNA-seq data with multiple experimental factors such as treatment, genotype, and condition. How do published studies usually structure their analysis pipeline in such cases?"},
-        },
-        {
-            "inputs": {"query": "I am comparing bulk RNA-seq data from cell lines with patient-derived samples. How do studies typically handle differences in experimental design and analysis?"},
-        },
-        {
-            "inputs": {"query": "There seem to be many choices for alignment and differential expression tools in bulk RNA-seq analysis. How do studies justify or discuss their tool selection?"},
-        },
-        {
-            "inputs": {"query": "I am concerned about reproducibility in bulk RNA-seq analysis. How do published studies design their pipelines to ensure robust and reproducible results?"},
-        }
+        # {
+        #     "inputs": {"query": "When analyzing bulk RNA-seq data, what does a typical end-to-end analysis pipeline look like, from read preprocessing to differential expression analysis?"},
+        # },
+        # {
+        #     "inputs": {"query": "I plan to align RNA-seq reads using STAR and perform differential expression analysis with DESeq2. Are there published studies that use a similar analysis pipeline?"},
+        # },
+        # {
+        #     "inputs": {"query": "I’ve heard that different analysis choices in clinical bulk RNA-seq studies can lead to different results. How do published papers discuss or address these methodological limitations?"},
+        # },
+        # {
+        #     "inputs": {"query": "I am analyzing bulk RNA-seq data from multiple cancer cell lines under different treatment conditions. How do published studies typically design and analyze this type of experiment?"},
+        # },
+        # {
+        #     "inputs": {"query": "I have bulk RNA-seq data collected at multiple time points after treatment. How do studies usually handle preprocessing and statistical analysis for time-course RNA-seq experiments?"},
+        # },
+        # {
+        #     "inputs": {"query": "I am working with bulk RNA-seq data from a non-human model organism. How do studies typically choose reference genomes and analysis pipelines in such cases?"},
+        # },
+        # {
+        #     "inputs": {"query": "My bulk RNA-seq experiment has a relatively small number of samples per group. How do published studies address this issue in their analysis pipeline?"},
+        # },
+        # {
+        #     "inputs": {"query": "Bulk RNA-seq data were generated across multiple sequencing batches and platforms. How do studies usually design their analysis to handle this?"},
+        # },
+        # {
+        #     "inputs": {"query": "I am reanalyzing publicly available bulk RNA-seq datasets. How do studies typically design preprocessing and normalization pipelines for secondary data analysis?"},
+        # },
+        # {
+        #     "inputs": {"query": "I have bulk RNA-seq data with multiple experimental factors such as treatment, genotype, and condition. How do published studies usually structure their analysis pipeline in such cases?"},
+        # },
+        # {
+        #     "inputs": {"query": "I am comparing bulk RNA-seq data from cell lines with patient-derived samples. How do studies typically handle differences in experimental design and analysis?"},
+        # },
+        # {
+        #     "inputs": {"query": "There seem to be many choices for alignment and differential expression tools in bulk RNA-seq analysis. How do studies justify or discuss their tool selection?"},
+        # },
+        # {
+        #     "inputs": {"query": "I am concerned about reproducibility in bulk RNA-seq analysis. How do published studies design their pipelines to ensure robust and reproducible results?"},
+        # }
     ]
 
     client=Client()
@@ -198,6 +196,7 @@ def main():
 
     #여기부턴 Parameter Evaluation 코드
     #사용 안할 시 이 아래는 주석 처리
+    
     '''
     evaluation_func = evaluation_wrapper(agent,context_holder)
     def target(inputs:dict)->dict:
@@ -207,9 +206,9 @@ def main():
         {
             "inputs": {"query": "I am planning to compare tumor and normal tissue samples using bulk RNA-seq. How do published studies typically design and analyze this type of experiment?"},
         },
-        # {
-        #     "inputs": {"query": "I have bulk RNA-seq data from patients and would like to account for clinical variables such as age and sex in the analysis. How do previous studies usually handle this?"},
-        # },
+        {
+            "inputs": {"query": "I have bulk RNA-seq data from patients and would like to account for clinical variables such as age and sex in the analysis. How do previous studies usually handle this?"},
+        },
         # {
         #     "inputs": {"query": "When analyzing bulk RNA-seq data, what does a typical end-to-end analysis pipeline look like, from read preprocessing to differential expression analysis?"},
         # },

@@ -28,34 +28,34 @@ def create_middleware(retriever_k4, retriever_k10,model):
 
         # 2. Request to rewrite the query
         rewrite_system_msg = """You are an expert Bioinformatics Research Assistant specializing in RNA-seq analysis.
-The user will describe a specific "Experimental Design" or "Analysis Challenge" (e.g., time-course, batch effects, small sample size, non-model organism).
+            The user will describe a specific "Experimental Design" or "Analysis Challenge" (e.g., time-course, batch effects, small sample size, non-model organism).
 
-Your task is to rewrite the user's query into a precise **search query** optimized for retrieving the "Materials and Methods" sections of academic papers.
+            Your task is to rewrite the user's query into a precise **search query** optimized for retrieving the "Materials and Methods" sections of academic papers.
 
-**Instructions:**
-1. **Analyze the Scenario:** Identify the key experimental factor (e.g., "Time-course" -> implies "Longitudinal analysis", "LRT").
-2. **Expand Technical Terms:** Add specific bioinformatics keywords relevant to that scenario.
-    - *For Batch Effects:* Add "Batch correction", "ComBat", "RUVSeq", "Variation removal".
-    - *For Time-course:* Add "Time-series", "Temporal dynamics", "Likelihood Ratio Test", "Clustering".
-    - *For Small Samples:* Add "Statistical power", "Dispersion estimation", "Robustness".
-    - *For Non-human:* Add "De novo assembly", "Ortholog mapping", "Scaffolding".
-    - *For General:* Always include core terms like "RNA-seq preprocessing", "Normalization", "Differential Expression".
-3. Decide whether the rewritten query is an aggregation-style query that requires retrieving evidence from multiple papers.
-4. **Format:**        Return your output strictly in the following JSON format:
-        {{
-        "rewritten_query": "...",
-        "is_aggregation": true or false
-        }}
+            **Instructions:**
+            1. **Analyze the Scenario:** Identify the key experimental factor (e.g., "Time-course" -> implies "Longitudinal analysis", "LRT").
+            2. **Expand Technical Terms:** Add specific bioinformatics keywords relevant to that scenario.
+                - *For Batch Effects:* Add "Batch correction", "ComBat", "RUVSeq", "Variation removal".
+                - *For Time-course:* Add "Time-series", "Temporal dynamics", "Likelihood Ratio Test", "Clustering".
+                - *For Small Samples:* Add "Statistical power", "Dispersion estimation", "Robustness".
+                - *For Non-human:* Add "De novo assembly", "Ortholog mapping", "Scaffolding".
+                - *For General:* Always include core terms like "RNA-seq preprocessing", "Normalization", "Differential Expression".
+            3. Decide whether the rewritten query is an aggregation-style query that requires retrieving evidence from multiple papers.
+            4. **Format:**        Return your output strictly in the following JSON format:
+                    {{
+                    "rewritten_query": "...",
+                    "is_aggregation": true or false
+                    }}
 
-**Examples:**
-User: "I have data from multiple time points. How to analyze?"
-Rewritten: RNA-seq time-course analysis methods preprocessing normalization longitudinal design Likelihood Ratio Test time-series clustering pipelines
+            **Examples:**
+            User: "I have data from multiple time points. How to analyze?"
+            Rewritten: RNA-seq time-course analysis methods preprocessing normalization longitudinal design Likelihood Ratio Test time-series clustering pipelines
 
-User: "Data was generated across multiple sequencing batches."
-Rewritten: RNA-seq batch effect correction methods ComBat RUVSeq remove unwanted variation normalization multi-batch analysis pipeline
+            User: "Data was generated across multiple sequencing batches."
+            Rewritten: RNA-seq batch effect correction methods ComBat RUVSeq remove unwanted variation normalization multi-batch analysis pipeline
 
-Your rewritten query will be used for similarity search.
-        Only output the rewritten query."""
+            Your rewritten query will be used for similarity search.
+            Only output the rewritten query."""
 
         # Make a template
         rewrite_template = ChatPromptTemplate(
@@ -90,7 +90,6 @@ Your rewritten query will be used for similarity search.
         is_aggregation = rewrite_result["is_aggregation"]
         print(f"--- [Middleware] Rewritten Query: '{rewritten_query}' ---")
 
-<<<<<<< HEAD
         if is_aggregation:
             retriever = retriever_k10
             print(f"--- [Middleware] Using retriever_k10 for aggregation query ---")
@@ -98,10 +97,7 @@ Your rewritten query will be used for similarity search.
             retriever = retriever_k4
             print(f"--- [Middleware] Using retriever_k4 for non-aggregation query ---")
 
-        retrieved_docs = retriever.invoke(last_query) # using the faiss vector store from our own dataset
-=======
         retrieved_docs = retriever.invoke(rewritten_query) # using the faiss vector store from our own dataset
->>>>>>> 68d421d01a0b324ddcf48d7fe5d14a3f6eb42497
         
         context_holder.set_docs(retrieved_docs)
         print(f"--- [Middleware] Saved {len(retrieved_docs)} docs to Context Holder ---")
